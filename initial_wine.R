@@ -118,20 +118,24 @@ PRESS <- function(linear.model) {
 library(MASS)
 library(dplyr)
 
-wine.data.polr <- wine.data
-wine.data.polr$quality <- factor(wine.data.polr$quality, ordered = T)
+
+wine.col.subset <- wine.data %>% select(volatile.acidity,chlorides,free.sulfur.dioxide,total.sulfur.dioxide,pH,sulphates,alcohol)
+xmat.polr <- scale(wine.col.subset, center = T, scale = F)
+wine.data.polr <- data.frame(xmat.polr, quality = factor(wine.data.polr$quality, ordered = T))
 
 # Train model using variables selected using stepwise selection procedure
 mPOLR <- polr(quality ~ volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol, data = wine.data.polr)
 summary(mPOLR)
-
-wine.col.subset <- wine.data %>% select(volatile.acidity,chlorides,free.sulfur.dioxide,total.sulfur.dioxide,pH,sulphates,alcohol)
+unname(round(mPOLR$coefficients, 3))
+unname(round(mPOLR$zeta, 3))
 
 # Plot marginal probabilities of quality rating for each regressor
-par(mfrow = c(1,1))
+par(mfrow = c(3,3))
 for (i in 1:length(coefficients(mPOLR))){
-  xran <- range(wine.col.subset[[i]])
+  varname <- names(mPOLR$coefficients)[i]
+  xran <- range(wine.data.polr[[i]])
   xvals <- seq(xran[1], xran[2], (xran[2]-xran[1])/50)
+  xvals.orig <- attr(x = xmat.polr, which = "scaled:center")[varname]+xvals
   xbeta <- xvals*(coefficients(mPOLR)[i])
   
   p3 <- logistic_cdf( mPOLR$zeta[1] - xbeta )
@@ -141,14 +145,13 @@ for (i in 1:length(coefficients(mPOLR))){
   p7 <- logistic_cdf( mPOLR$zeta[5] - xbeta ) - logistic_cdf( mPOLR$zeta[4] - xbeta )
   p8 <- 1 - logistic_cdf( mPOLR$zeta[5] - xbeta )
   
-  varname <- names(mPOLR$coefficients)[i]
-  plot(xvals, p3, type='l', ylab='Prob', ylim=c(0,1), xlab=varname, main = paste0("Marginal probability plot for regressor:",varname))
-  lines(xvals, p4, col='red')
-  lines(xvals, p5, col='blue')
-  lines(xvals, p6, col='green')
-  lines(xvals, p7, col='purple')
-  lines(xvals, p8, col='brown')
-  legend("topleft", lty=1, col=c("black", "red", "blue", "green", "purple", "brown"), 
+  plot(xvals.orig, p3, type='l', ylab='Prob', ylim=c(0,1), xlab=varname, main = paste0("Marginal probability plot for regressor:",varname))
+  lines(xvals.orig, p4, col='blue')
+  lines(xvals.orig, p5, col='green')
+  lines(xvals.orig, p6, col='brown')
+  lines(xvals.orig, p7, col='purple')
+  lines(xvals.orig, p8, col='red')
+  legend("topleft", lty=1, col=c("black", "blue", "green", "brown", "purple", "red"), 
          legend=c("quality = 3", "quality = 4", "quality = 5", "quality = 6", "quality = 7", "quality = 8"))
 }
 

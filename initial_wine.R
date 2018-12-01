@@ -98,18 +98,27 @@ PRESS <- function(linear.model) {
   sum(pr^2)
 }
 
+# calculating r2 prediction
+PRESS(both_model)
+1 - PRESS(both_model)/ sum(anova(both_model)['Sum Sq'])
 
+#getting confints on regression coefficients
+confint(both_model)
+#the max cooks distance is less than 1
+max(cooks.distance(both_model))
+#qqnorm plots
+par(mfrow = c(1,1))
+qqnorm(resid(both_model))
+qqline(resid(both_model))
 
-# plot(fixed.acidity, alcohol)
-# plot(volatile.acidity, alcohol)
-# plot(citric.acid, alcohol)
-# plot(residual.sugar, alcohol)
-# plot(chlorides, alcohol)
-# plot(free.sulfur.dioxide, alcohol)
-# plot(density, alcohol)
-# plot(pH, alcohol)
-# plot(sulphates, alcohol)
-# plot(alcohol, quality)
+# get the influence measures
+inflm.SR = influence.measures(both_model)
+# 8.7% of points are influence points
+length(which(apply(inflm.SR$is.inf, 1, any)))/n
+# see which points are influence points
+summary(inflm.SR)
+# get influence points from the total data
+influence.points =wine.data[apply(inflm.SR$is.inf, 1, any),]
 
 
 

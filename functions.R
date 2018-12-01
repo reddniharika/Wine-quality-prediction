@@ -143,6 +143,10 @@ stepwise.selection <- function(alpha.in, alpha.out, resp.name, reg.names, data.n
 	return(curr.model.lm)
 }
 
+logistic_cdf <- function(x) {
+  return( 1/(1+exp(-x) ) )
+}
+
 # -------------------------------------------------------+
 # R function for Gram-Schmidt orthonormalization         |
 # -------------------------------------------------------+

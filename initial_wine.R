@@ -1,10 +1,8 @@
 wine_file = 'winequality-red.csv'
 wine.data = read.csv(wine_file)
-#attach(wine.data)
+
 initial_fit = lm(quality ~., data=wine.data)
 summary(initial_fit)
-
-#quality <- wine.data$quality
 
 #see range of quality values
 range(quality)
@@ -46,6 +44,7 @@ summary(wine.lm.stepwise)
 
 library(leaps)
 
+
 #n <- dim(wine.data)[1]
 k <- dim(wine.data)[2]
 p <- k + 1
@@ -56,7 +55,7 @@ summary(wine.vs)
 #checking for multicollinearity
 #check pairwise correlation
 library(dplyr)
-X.mat = cbind(select(wine.data, volatile.acidity, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, pH, sulphates, alcohol))
+X.mat = cbind(dplyr::select(wine.data, volatile.acidity, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, pH, sulphates, alcohol))
 cor(X.mat)
 # seems to be some correlation between free sulfur dioxide and total sulfur dioxide with corr .668
 #plot:
@@ -98,7 +97,7 @@ plot(wine.data$free.sulfur.dioxide, y = wine.data$quality)
 plot(wine.data$free.sulfur.dioxide^(-0.5), y = wine.data$quality)
 
 # Transform using results of Box-Tidwell procedure
-wine.data.transfm <- wine.data %>% select(-quality)
+wine.data.transfm <- wine.data %>% dplyr::select(-quality)
 wine.data.transfm$sulphates <- wine.data$sulphates^(-2)
 wine.data.transfm$free.sulfur.dioxide <- wine.data$free.sulfur.dioxide^(-0.5)
 
@@ -210,7 +209,7 @@ library(dplyr)
 
 # 2nd proportional-odds logistic regression model - including interaction terms
 
-wine.col.subset.all <- wine.data.transfm.interact %>% select(all.useful.vars)
+wine.col.subset.all <- wine.data.transfm.interact %>% dplyr::select(all.useful.vars)
 wine.data.polr.all <- data.frame(wine.col.subset.all, quality = factor(wine.data$quality, ordered = T))
 
 # Train model using variables selected using stepwise selection procedure
@@ -257,4 +256,137 @@ tempdata <- data.frame(wine.col.subset.all, quality = wine.data$quality)
 mtemp <- lm(quality ~ ., data = tempdata)
 vif(mtemp)
 summary(mtemp)
+
+
+
+#Model adequacy checking
+library(sure)
+library(PResiduals)
+
+# wine$quality<-as.factor(wine$quality)
+# fit.logit<-polr(quality ~(volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol)^2,data=wine, method ="logistic")
+# summary(fit.logit)
+
+autoplot(mPOLR2, nsim = 5, what = "fitted", alpha = 0.5)
+autoplot(mPOLR2, nsim = 5, what = "qq")
+
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$volatile.acidity, xlab = "volatile.acidity")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$chlorides, xlab = "chlorides")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$free.sulfur.dioxide, xlab = "free.sulfur.dioxide")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$total.sulfur.dioxide, xlab = "total.sulfur.dioxide")
+#autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$sulphates, xlab = "sulphates")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$alcohol, xlab = "alcohol")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$pH, xlab = "pH")
+
+
+
+# boxTidwell(quality ~total.sulfur.dioxide ,data=wine)
+# # Total sulphur dioxide should be raise to the power 0.67
+# 
+# boxTidwell(quality ~sulphates , data=wine)
+# # Sulphates should be raise to the power -2.17
+# 
+# boxTidwell(quality ~free.sulfur.dioxide , data=wine)
+# # Free sulphur dioxide should be raise to the power 0.57
+# 
+# boxTidwell(quality ~chlorides , data=wine)
+# # Chlorides should be raise to the power -0.66
+# 
+# 
+# wine$sulphates1<-wine$sulphates^-2.17
+# wine$total.sulfur.dioxide1<-wine$total.sulfur.dioxide^0.67
+# 
+# wine$free.sulfur.dioxide1<-wine$free.sulfur.dioxide^0.57
+# wine$chlorides1<-wine$chlorides^-0.66
+# 
+# fit.logit.trans<-polr(quality ~chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol,data=wine, method ="logistic")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$volatile.acidity, xlab = "volatile.acidity")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$chlorides1, xlab = "chlorides")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$free.sulfur.dioxide1, xlab = "free.sulfur.dioxide")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$total.sulfur.dioxide1, xlab = "total.sulfur.dioxide")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$sulphates1, xlab = "sulphates")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$alcohol, xlab = "alcohol")
+# autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$pH, xlab = "pH")
+# 
+# summary(fit.logit.trans)
+
+# The deviance statistics of these two models are        |
+
+fit.logit$deviance
+fit.logit.trans$deviance
+
+# The difference-in-deviance statistic is                |
+
+diff.dev <- fit.logit$deviance - fit.logit.trans$deviance
+diff.dev
+
+# Since the transformed model includes just 4 more parameters  |
+# than the original model, the associated degrees of      |
+# freedom is                                             |
+
+df.diff.dev <- 4
+
+# The chi-square critical value is                       |
+
+
+# The estimate and standard error of the parameter under |
+# test are                                               |
+
+b2.chlorides1 <- summary(fit.logit.trans)$coefficients[1,1]
+b2.chlorides1
+
+se.b2.hat <- summary(fit.logit.trans)$coefficients[1,2]
+se.b2.hat
+
+#Sulphates transformed
+b2.sulphates1 <- summary(fit.logit.trans)$coefficients[3,1]
+b2.sulphates1
+
+se.b2.hat <- summary(fit.logit.trans)$coefficients[3,2]
+se.b2.hat
+
+# The corresponding z statistic is formed as             |
+
+z0 <- b2.sulphates1 / se.b2.hat
+z0
+
+# The standard-normal critical value is                  |
+alpha <- 0.05
+z.crit <- qnorm(alpha/2, mean=0, sd=1, lower.tail=FALSE)
+z.crit
+
+
+# The P-value is                                         |
+
+p.val <- 2*pnorm(abs(z0), mean=0, sd=1, lower.tail=FALSE)
+p.val
+
+
+#install.packages("survey")
+
+# library(survey)
+# 
+# regressors<-c(chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol)
+# regTermTest(fit.logit.trans, "chlorides1")
+# regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
+# regTermTest(fit.logit.trans, "sulphates1")
+# regTermTest(fit.logit.trans, "total.sulfur.dioxide1")
+# regTermTest(fit.logit.trans, "volatile.acidity")
+# regTermTest(fit.logit.trans, "chlorides")
+# regTermTest(fit.logit.trans, "free.sulfur.dioxide")
+# regTermTest(fit.logit.trans, "total.sulfur.dioxide")
+# regTermTest(fit.logit.trans, "pH")
+# regTermTest(fit.logit.trans, "sulphates")
+# regTermTest(fit.logit.trans, "alcohol")
+
+
+
+
+
+
+
+
+
+regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
+
 

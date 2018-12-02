@@ -277,6 +277,8 @@ autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$total.sulfu
 #autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$sulphates, xlab = "sulphates")
 autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$alcohol, xlab = "alcohol")
 autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$pH, xlab = "pH")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$ volatile.acidity..total.sulfur.dioxide, xlab = " volatile.acidity..total.sulfur.dioxide")
+autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$ chlorides..free.sulfur.dioxide, xlab = " chlorides..free.sulfur.dioxide")
 
 
 
@@ -309,6 +311,12 @@ autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$pH, xlab = 
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$pH, xlab = "pH")
 # 
 # summary(fit.logit.trans)
+
+
+"
+DEviance tests can only be done to compare models before and after transformation
+
+"
 
 # The deviance statistics of these two models are        |
 
@@ -362,31 +370,24 @@ p.val <- 2*pnorm(abs(z0), mean=0, sd=1, lower.tail=FALSE)
 p.val
 
 
-#install.packages("survey")
-
-# library(survey)
+# #install.packages("survey")
 # 
-# regressors<-c(chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol)
-# regTermTest(fit.logit.trans, "chlorides1")
+# # library(survey)
+# # 
+# # regressors<-c(chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol)
+# # regTermTest(fit.logit.trans, "chlorides1")
+# # regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
+# # regTermTest(fit.logit.trans, "sulphates1")
+# # regTermTest(fit.logit.trans, "total.sulfur.dioxide1")
+# # regTermTest(fit.logit.trans, "volatile.acidity")
+# # regTermTest(fit.logit.trans, "chlorides")
+# # regTermTest(fit.logit.trans, "free.sulfur.dioxide")
+# # regTermTest(fit.logit.trans, "total.sulfur.dioxide")
+# # regTermTest(fit.logit.trans, "pH")
+# # regTermTest(fit.logit.trans, "sulphates")
+# # regTermTest(fit.logit.trans, "alcohol")
+# 
+# 
 # regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
-# regTermTest(fit.logit.trans, "sulphates1")
-# regTermTest(fit.logit.trans, "total.sulfur.dioxide1")
-# regTermTest(fit.logit.trans, "volatile.acidity")
-# regTermTest(fit.logit.trans, "chlorides")
-# regTermTest(fit.logit.trans, "free.sulfur.dioxide")
-# regTermTest(fit.logit.trans, "total.sulfur.dioxide")
-# regTermTest(fit.logit.trans, "pH")
-# regTermTest(fit.logit.trans, "sulphates")
-# regTermTest(fit.logit.trans, "alcohol")
-
-
-
-
-
-
-
-
-
-regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
 
 

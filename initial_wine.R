@@ -82,7 +82,7 @@ plot(wine.data$total.sulfur.dioxide, y = wine.data$quality)
 plot(wine.data$free.sulfur.dioxide, y = wine.data$quality)
 plot(wine.data$free.sulfur.dioxide , y = wine.data$quality)
 
-bt <- boxTidwell(quality ~ volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol, 
+bt <- boxTidwell(quality ~ volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol,
                  data = wine.data,
                  max.iter = 50)
 
@@ -122,8 +122,8 @@ wine.data.transfm$quality <- wine.data$quality
 # both_model = lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + pH + sulphates + alcohol, data = wine.data)
 # free_model = lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide + pH + sulphates + alcohol, data = wine.data)
 # total_model = lm(quality ~ volatile.acidity + chlorides + total.sulfur.dioxide + pH + sulphates + alcohol, data = wine.data)
-# 
-# 
+#
+#
 # summary(free_model)
 # summary(total_model)
 # summary(initial_fit)
@@ -172,14 +172,14 @@ library(dplyr)
 # wine.col.subset <- wine.data %>% select(volatile.acidity,chlorides,free.sulfur.dioxide,total.sulfur.dioxide,pH,sulphates,alcohol)
 # xmat.polr <- scale(wine.col.subset, center = T, scale = F)
 # wine.data.polr <- data.frame(xmat.polr, quality = factor(wine.data$quality, ordered = T))
-# 
+#
 # # Train model using variables selected using stepwise selection procedure
 # mPOLR <- polr(quality ~ volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol, data = wine.data.polr)
 # summary(mPOLR)
 # unname(round(mPOLR$coefficients, 3))
 # unname(round(mPOLR$zeta, 3))
 # confint(mPOLR)
-# 
+#
 # # Plot marginal probabilities of quality rating for each regressor
 # par(mfrow = c(3,3))
 # for (i in 1:length(coefficients(mPOLR))){
@@ -188,21 +188,21 @@ library(dplyr)
 #   xvals <- seq(xran[1], xran[2], (xran[2]-xran[1])/50)
 #   xvals.orig <- attr(x = xmat.polr, which = "scaled:center")[varname]+xvals
 #   xbeta <- xvals*(coefficients(mPOLR)[i])
-#   
+#
 #   p3 <- logistic_cdf( mPOLR$zeta[1] - xbeta )
 #   p4 <- logistic_cdf( mPOLR$zeta[2] - xbeta ) - logistic_cdf( mPOLR$zeta[1] - xbeta )
 #   p5 <- logistic_cdf( mPOLR$zeta[3] - xbeta ) - logistic_cdf( mPOLR$zeta[2] - xbeta )
 #   p6 <- logistic_cdf( mPOLR$zeta[4] - xbeta ) - logistic_cdf( mPOLR$zeta[3] - xbeta )
 #   p7 <- logistic_cdf( mPOLR$zeta[5] - xbeta ) - logistic_cdf( mPOLR$zeta[4] - xbeta )
 #   p8 <- 1 - logistic_cdf( mPOLR$zeta[5] - xbeta )
-#   
+#
 #   plot(xvals.orig, p3, type='l', ylab='Prob', ylim=c(0,1), xlab=varname, main = paste0("Marginal probability plot for regressor:",varname))
 #   lines(xvals.orig, p4, col='blue')
 #   lines(xvals.orig, p5, col='green')
 #   lines(xvals.orig, p6, col='brown')
 #   lines(xvals.orig, p7, col='purple')
 #   lines(xvals.orig, p8, col='red')
-# #  legend("topleft", lty=1, col=c("black", "blue", "green", "brown", "purple", "red"), 
+# #  legend("topleft", lty=1, col=c("black", "blue", "green", "brown", "purple", "red"),
 # #         legend=c("quality = 3", "quality = 4", "quality = 5", "quality = 6", "quality = 7", "quality = 8"))
 # }
 
@@ -223,30 +223,33 @@ confint(mPOLR2)
 # fill out centering modifiers for interaction terms kept in model
 centers <- c(centers, centers["total.sulfur.dioxide"]*centers["sulphates"], centers["total.sulfur.dioxide"]*centers["volatile.acidity"], centers["free.sulfur.dioxide"]*centers["chlorides"])
 names(centers) <- c(names(centers)[1:(length(centers)-3)], "total.sulfur.dioxide..sulphates", "volatile.acidity..total.sulfur.dioxide", "chlorides..free.sulfur.dioxide")
+varnames <- names(mPOLR2$coefficients)
+dispnames <- stringr::str_replace(varnames, pattern = "sulphates", replacement = "sulphates^-2")
+dispnames <- stringr::str_replace(dispnames, pattern = "free.sulfur.dioxide", replacement = "free.sulfur.dioxide^-0.5")
 
 # Plot marginal probabilities of quality rating for each regressor
 par(mfrow = c(3,4))
 for (i in 1:length(coefficients(mPOLR2))){
-  varname <- names(mPOLR2$coefficients)[i]
+  varname <- varnames[i]
   xran <- range(wine.data.polr.all[[varname]])
   xvals <- seq(xran[1], xran[2], (xran[2]-xran[1])/50)
   xvals.orig <- centers[varname]+xvals
   xbeta <- xvals*(coefficients(mPOLR2)[i])
-  
+
   p3 <- logistic_cdf( mPOLR2$zeta[1] - xbeta )
   p4 <- logistic_cdf( mPOLR2$zeta[2] - xbeta ) - logistic_cdf( mPOLR2$zeta[1] - xbeta )
   p5 <- logistic_cdf( mPOLR2$zeta[3] - xbeta ) - logistic_cdf( mPOLR2$zeta[2] - xbeta )
   p6 <- logistic_cdf( mPOLR2$zeta[4] - xbeta ) - logistic_cdf( mPOLR2$zeta[3] - xbeta )
   p7 <- logistic_cdf( mPOLR2$zeta[5] - xbeta ) - logistic_cdf( mPOLR2$zeta[4] - xbeta )
   p8 <- 1 - logistic_cdf( mPOLR2$zeta[5] - xbeta )
-  
-  plot(xvals.orig, p3, type='l', ylab='Marginal Probability ', ylim=c(0,1), xlab=varname, main = paste0("Regressor:",varname))
+
+  plot(xvals.orig, p3, type='l', ylab='Marginal Probability ', ylim=c(0,1), xlab=varname, main = paste0("Regressor: ",dispnames[i]))
   lines(xvals.orig, p4, col='blue')
   lines(xvals.orig, p5, col='green')
   lines(xvals.orig, p6, col='brown')
   lines(xvals.orig, p7, col='purple')
   lines(xvals.orig, p8, col='red')
-#  legend("topleft", lty=1, col=c("black", "blue", "green", "brown", "purple", "red"), 
+#  legend("topleft", lty=1, col=c("black", "blue", "green", "brown", "purple", "red"),
  #        legend=c("quality = 3", "quality = 4", "quality = 5", "quality = 6", "quality = 7", "quality = 8"))
 }
 
@@ -256,6 +259,22 @@ tempdata <- data.frame(wine.col.subset.all, quality = wine.data$quality)
 mtemp <- lm(quality ~ ., data = tempdata)
 vif(mtemp)
 summary(mtemp)
+
+# Compare interaction term & transformation linear model vs base selected linear model using extra sum of squares
+
+# train linear model using centered base data
+final.lm.cent <- lm(quality ~ volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol,
+                    data = data.frame(scale(wine.data %>% select(-quality), center = T), quality = wine.data$quality))
+
+SSR.interact <- sum(head(anova(mtemp)$`Sum Sq`, -1))
+MS.Res.interact <- tail(MS.Res.interact$`Mean Sq`, 1)
+SSR.reduced <- sum(head(anova(final.lm.cent)$`Sum Sq`, -1))
+F.stat.ESS <- (SSR.interact-SSR.reduced)/(mtemp$rank-final.lm.cent$rank)/MS.Res.interact
+F.crit.ESS <- qf(0.05, (mtemp$rank-final.lm.cent$rank), n-mtemp$rank, lower.tail = F)
+F.stat.ESS > F.crit.ESS
+
+
+
 
 
 
@@ -284,23 +303,23 @@ autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$ chlorides.
 
 # boxTidwell(quality ~total.sulfur.dioxide ,data=wine)
 # # Total sulphur dioxide should be raise to the power 0.67
-# 
+#
 # boxTidwell(quality ~sulphates , data=wine)
 # # Sulphates should be raise to the power -2.17
-# 
+#
 # boxTidwell(quality ~free.sulfur.dioxide , data=wine)
 # # Free sulphur dioxide should be raise to the power 0.57
-# 
+#
 # boxTidwell(quality ~chlorides , data=wine)
 # # Chlorides should be raise to the power -0.66
-# 
-# 
+#
+#
 # wine$sulphates1<-wine$sulphates^-2.17
 # wine$total.sulfur.dioxide1<-wine$total.sulfur.dioxide^0.67
-# 
+#
 # wine$free.sulfur.dioxide1<-wine$free.sulfur.dioxide^0.57
 # wine$chlorides1<-wine$chlorides^-0.66
-# 
+#
 # fit.logit.trans<-polr(quality ~chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol,data=wine, method ="logistic")
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$volatile.acidity, xlab = "volatile.acidity")
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$chlorides1, xlab = "chlorides")
@@ -309,7 +328,7 @@ autoplot(mPOLR2, nsim = 5, what = "covariate",x = wine.data.polr.all$ chlorides.
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$sulphates1, xlab = "sulphates")
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$alcohol, xlab = "alcohol")
 # autoplot(fit.logit.trans, nsim = 5, what = "covariate",x = wine$pH, xlab = "pH")
-# 
+#
 # summary(fit.logit.trans)
 
 
@@ -371,9 +390,9 @@ p.val
 
 
 # #install.packages("survey")
-# 
+#
 # # library(survey)
-# # 
+# #
 # # regressors<-c(chlorides1+free.sulfur.dioxide1+sulphates1+total.sulfur.dioxide1+volatile.acidity+chlorides+free.sulfur.dioxide+total.sulfur.dioxide+pH+sulphates+alcohol)
 # # regTermTest(fit.logit.trans, "chlorides1")
 # # regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
@@ -386,8 +405,8 @@ p.val
 # # regTermTest(fit.logit.trans, "pH")
 # # regTermTest(fit.logit.trans, "sulphates")
 # # regTermTest(fit.logit.trans, "alcohol")
-# 
-# 
+#
+#
 install.packages("pscl")
 library(pscl)
 pR2(mPOLR2)
@@ -401,7 +420,7 @@ HLgof.test(fit = fitted(mPOLR2), obs = wine.data.polr.all$quality)
 #Multinom model
 # fit.multinom <- multinom(quality ~ ., data=wine.data)
 # summary(fit.multinom)
-# 
+#
 # logLik(fit.multinom)
 
 deviance(mPOLR2)

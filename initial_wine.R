@@ -388,6 +388,44 @@ p.val
 # # regTermTest(fit.logit.trans, "alcohol")
 # 
 # 
-# regTermTest(fit.logit.trans, "free.sulfur.dioxide1")
+install.packages("pscl")
+library(pscl)
+pR2(mPOLR2)
 
 
+install.packages("MKmisc")
+library(MKmisc)
+HLgof.test(fit = fitted(mPOLR2), obs = wine.data.polr.all$quality)
+
+
+#Multinom model
+# fit.multinom <- multinom(quality ~ ., data=wine.data)
+# summary(fit.multinom)
+# 
+# logLik(fit.multinom)
+
+deviance(mPOLR2)
+deviance(update(mPOLR2,.~.-chlorides)) - deviance(mPOLR2)
+#0
+#Shows that presence of chlorides has not had any effect on deviance
+deviance(update(mPOLR2,.~.-chlorides..free.sulfur.dioxide)) - deviance(mPOLR2)
+#9.803717
+
+deviance(update(mPOLR2,.~.-free.sulfur.dioxide)) - deviance(mPOLR2)
+#18.33998
+
+deviance(update(mPOLR2,.~.-pH)) - deviance(mPOLR2)
+#14.46254
+
+deviance(update(mPOLR2,.~.-alcohol)) - deviance(mPOLR2)
+#302.9163
+#Alcohol has the most influence on quality
+
+deviance(update(mPOLR2,.~.-volatile.acidity..total.sulfur.dioxide)) - deviance(mPOLR2)
+#20.21373
+
+deviance(update(mPOLR2,.~.-volatile.acidity)) - deviance(mPOLR2)
+#134.8794
+
+deviance(update(mPOLR2,.~.-total.sulfur.dioxide)) - deviance(mPOLR2)
+#39.80138

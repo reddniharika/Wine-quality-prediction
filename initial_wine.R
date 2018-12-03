@@ -429,3 +429,50 @@ deviance(update(mPOLR2,.~.-volatile.acidity)) - deviance(mPOLR2)
 
 deviance(update(mPOLR2,.~.-total.sulfur.dioxide)) - deviance(mPOLR2)
 #39.80138
+
+
+
+
+
+
+####################################
+### Logistic regression
+
+
+wine.data$good <- wine.data$quality >= 6
+head(wine.data)
+summary(wine.data)
+
+
+
+source('functions.r')
+alpha.in <- 0.05
+alpha.out <- 0.05
+resp.name <- "good"
+data.name = 'wine.data'
+reg.names = c("fixed.acidity"  ,      "volatile.acidity"  ,   "citric.acid"    ,      "residual.sugar" ,     
+              "chlorides"    ,        "free.sulfur.dioxide" , "total.sulfur.dioxide", "density"  ,           
+              "pH"   ,                "sulphates"    ,        "alcohol" )
+
+wine.lm.forward = forward.selection(alpha.in, resp.name, reg.names, data.name)
+summary(wine.lm.forward)
+
+wine.lm.backward = backward.elimination(alpha.out, resp.name, reg.names, data.name)
+summary(wine.lm.backward)
+
+wine.lm.stepwise = stepwise.selection(alpha.in, alpha.out, resp.name, reg.names, data.name)
+summary(wine.lm.stepwise)
+
+log1 = glm(good~volatile.acidity + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + pH + sulphates + alcohol, data=wine.data, family=binomial(link="logit"))
+summary(log1)
+
+qqnorm(rstudent(log1), datax=TRUE, pch=16, cex=1, xlab="percent", ylab="R-student residual", main = "Normal probability plot of residuals")
+qqline(rstudent(log1))
+
+nullmod <- glm(good~1, data=wine.data,family="binomial")
+1-logLik(log1)/logLik(nullmod)
+
+install.packages("pscl")
+library(pscl)
+pR2(log1)
+###############################################

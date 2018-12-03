@@ -101,6 +101,29 @@ wine.data.transfm <- wine.data %>% dplyr::select(-quality)
 wine.data.transfm$sulphates <- wine.data$sulphates^(-2)
 wine.data.transfm$free.sulfur.dioxide <- wine.data$free.sulfur.dioxide^(-0.5)
 
+<<<<<<< HEAD
+# calculating r2 prediction
+PRESS(both_model)
+1 - PRESS(both_model)/ sum(anova(both_model)['Sum Sq'])
+
+#getting confints on regression coefficients
+confint(both_model)
+#the max cooks distance is less than 1
+max(cooks.distance(both_model))
+#qqnorm plots
+par(mfrow = c(1,1))
+qqnorm(resid(both_model))
+qqline(resid(both_model))
+
+# get the influence measures
+inflm.SR = influence.measures(both_model)
+# 8.7% of points are influence points
+length(which(apply(inflm.SR$is.inf, 1, any)))/n
+# see which points are influence points
+summary(inflm.SR)
+# get influence points from the total data
+influence.points =wine.data[apply(inflm.SR$is.inf, 1, any),]
+=======
 # Center data before creating interactions to avoid multicollinearity problems
 wine.data.transfm <- scale(wine.data.transfm, center = T, scale = F)
 centers <- attr(wine.data.transfm, which = "scaled:center")
@@ -118,6 +141,7 @@ wine.data.transfm$quality <- wine.data$quality
 # plot(pH, alcohol)
 # plot(sulphates, alcohol)
 # plot(alcohol, quality)
+>>>>>>> 704216e950ea7f2ce9cc5778d4752262b26a17e3
 
 # both_model = lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + pH + sulphates + alcohol, data = wine.data)
 # free_model = lm(quality ~ volatile.acidity + chlorides + free.sulfur.dioxide + pH + sulphates + alcohol, data = wine.data)

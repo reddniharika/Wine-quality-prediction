@@ -1,5 +1,5 @@
 wine_file = 'winequality-red.csv'
-wine.data = read.csv(wine_file)
+wine.data = read.csv("winequality-red.csv")
 
 initial_fit = lm(quality ~., data=wine.data)
 summary(initial_fit)
@@ -427,20 +427,20 @@ HLgof.test(fit = fitted(mPOLR2), obs = wine.data.polr.all$quality)
 # logLik(fit.multinom)
 
 deviance(mPOLR2)
-deviance(update(mPOLR2,.~.-chlorides)) - deviance(mPOLR2)
-#0
-#Shows that presence of chlorides has not had any effect on deviance
 deviance(update(mPOLR2,.~.-chlorides..free.sulfur.dioxide)) - deviance(mPOLR2)
-#9.803717
+#6.22
+
+deviance(update(mPOLR2,.~.-chlorides)) - deviance(mPOLR2)
+#12.68
 
 deviance(update(mPOLR2,.~.-free.sulfur.dioxide)) - deviance(mPOLR2)
 #18.33998
 
 deviance(update(mPOLR2,.~.-pH)) - deviance(mPOLR2)
-#14.46254
+#8.14
 
 deviance(update(mPOLR2,.~.-alcohol)) - deviance(mPOLR2)
-#302.9163
+#271.95
 #Alcohol has the most influence on quality
 
 deviance(update(mPOLR2,.~.-volatile.acidity..total.sulfur.dioxide)) - deviance(mPOLR2)
@@ -452,10 +452,13 @@ deviance(update(mPOLR2,.~.-volatile.acidity)) - deviance(mPOLR2)
 deviance(update(mPOLR2,.~.-total.sulfur.dioxide)) - deviance(mPOLR2)
 #39.80138
 
+deviance(update(mPOLR2,.~.-citric.acid)) - deviance(mPOLR2)
+#7.55
 
-
-
-
+deviance(update(mPOLR2,.~.-sulphates)) - deviance(mPOLR2)
+#117.0708
+deviance(update(mPOLR2,.~.-total.sulfur.dioxide..sulphates)) - deviance(mPOLR2)
+#31.05381
 
 ####################################
 ### Logistic regression

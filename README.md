@@ -2,9 +2,9 @@
 
 Contributors:
 
-Sean Mullane
-Niharika Reddy
-Beni Shpringer
+Sean Mullane,
+Niharika Reddy,
+Beni Shpringer,
 Sakshi Jawarani
 
 The said project was done as a part of final project for Statistics 6021: Introduction to Linear Regression Models. 
